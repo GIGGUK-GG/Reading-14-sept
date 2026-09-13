@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS Reading Practice Test</title>
+<style>
+  :root{
+    --blue-900:#0d2b57;
+    --blue-700:#154a91;
+    --blue-600:#1c5fb8;
+    --blue-100:#e8f0fc;
+    --blue-050:#f4f8fd;
+    --red-600:#b3261e;
+    --red-050:#fdecec;
+    --ink:#152238;
+    --ink-soft:#4c5a70;
+    --line:#d7e0ee;
+    --white:#ffffff;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--white); color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:"Source Serif 4","Georgia",serif; font-weight:600; color:var(--blue-900); margin:0 0 .4em 0; }
+  ::selection{ background:#bcd6fb; }
+  .hidden{ display:none !important; }
+  button{ font-family:inherit; cursor:pointer; }
+
+  #topbar{
+    position:sticky; top:0; z-index:50; background:var(--white); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; padding:10px 22px; gap:16px; flex-wrap:wrap;
+  }
+  #topbar .brand{ display:flex; align-items:baseline; gap:10px; }
+  #topbar .brand small{ color:var(--ink-soft); font-size:.8rem; letter-spacing:.02em; }
+  #timerWrap{ display:flex; align-items:center; gap:8px; font-variant-numeric:tabular-nums; }
+  #timerLabel{ font-size:.78rem; color:var(--ink-soft); }
+  #timerDisplay{
+    font-size:1.25rem; font-weight:700; color:var(--blue-700); border:1px solid var(--blue-100);
+    background:var(--blue-050); padding:4px 12px; border-radius:var(--radius); min-width:82px; text-align:center;
+  }
+  #timerDisplay.warning{ color:var(--red-600); background:var(--red-050); border-color:#f3caca; }
+
+  #sectionNav{ display:flex; gap:6px; padding:10px 22px; border-bottom:1px solid var(--line); background:var(--blue-050); flex-wrap:wrap; }
+  .navBtn{ border:1px solid var(--line); background:var(--white); color:var(--blue-700); padding:7px 14px; border-radius:999px; font-size:.88rem; font-weight:600; }
+  .navBtn[disabled]{ opacity:.45; cursor:not-allowed; }
+  .navBtn.active{ background:var(--blue-600); color:var(--white); border-color:var(--blue-600); }
+  #submitBtn{ margin-left:auto; background:var(--red-600); color:var(--white); border:1px solid var(--red-600); padding:7px 16px; border-radius:999px; font-weight:700; font-size:.88rem; }
+  #submitBtn:hover{ background:#951d17; }
+
+  #content{ max-width:1300px; margin:0 auto; padding:20px 22px 80px; }
+  .test-section{ animation:fade .25s ease; }
+  @keyframes fade{ from{opacity:0} to{opacity:1} }
+
+  .section-head{ display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--blue-900); padding-bottom:8px; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+  .section-head .qrange{ color:var(--ink-soft); font-size:.9rem; }
+
+  .toolbar{ display:flex; gap:8px; margin-bottom:12px; }
+  .tbtn{ border:1px solid var(--line); background:var(--white); color:var(--blue-700); padding:5px 12px; border-radius:var(--radius); font-size:.82rem; font-weight:600; }
+  .tbtn.on{ background:var(--blue-600); color:var(--white); border-color:var(--blue-600); }
+  mark.hl{ background:#ffe07a; padding:0 1px; border-radius:2px; }
+
+  .twoCol{ display:grid; grid-template-columns: 1.15fr 1fr; gap:20px; align-items:start; }
+  .passageCol, .questionsCol{
+    max-height:calc(100vh - 165px); overflow-y:auto; border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 20px; background:var(--white);
+  }
+  .passageCol{ background:#fbfcfe; }
+  .passageCol h2{ font-size:1.15rem; }
+  .passageCol p{ margin:0 0 12px; font-size:.94rem; }
+  .passageCol p strong.para{ color:var(--blue-700); }
+
+  .qblock{ border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:14px; background:var(--white); }
+  .qblock h3{ font-size:.95rem; margin-bottom:8px; color:var(--ink); font-family:inherit; font-weight:700; }
+  .qsub{ color:var(--ink-soft); font-size:.82rem; margin:-2px 0 10px; }
+
+  .headingList{ border:1px dashed var(--line); border-radius:var(--radius); background:var(--blue-050); padding:10px 14px; margin-bottom:12px; font-size:.85rem; }
+  .headingList div{ margin:2px 0; }
+  .headingList b{ color:var(--blue-700); }
+
+  .fillLine{ margin:8px 0; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .fillLine .qnum{ display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:22px; border-radius:50%; background:var(--blue-900); color:var(--white); font-size:.72rem; font-weight:700; flex:none; }
+  .fillLine label{ flex:1 1 auto; font-size:.9rem; }
+  .fillLine input[type=text]{ border:none; border-bottom:2px solid var(--blue-600); background:transparent; font-size:.92rem; padding:3px 4px; width:160px; font-family:inherit; color:var(--ink); }
+  .fillLine input[type=text]:focus{ outline:none; border-color:var(--blue-900); }
+  select.matchSel{ border:1px solid var(--blue-600); border-radius:4px; padding:4px 6px; font-family:inherit; font-size:.88rem; color:var(--ink); background:var(--white); }
+  input[disabled], select[disabled]{ background:#f6f7f9; color:var(--ink-soft); }
+
+  .optionRow{ display:flex; flex-direction:column; gap:6px; margin:6px 0 4px 4px; }
+  .optionRow label{ display:flex; gap:8px; align-items:flex-start; font-size:.88rem; }
+  .optionRow input{ margin-top:3px; }
+
+  .footNav{ display:flex; justify-content:space-between; margin-top:16px; }
+  .footNav button{ background:var(--white); border:1px solid var(--blue-600); color:var(--blue-700); padding:8px 18px; border-radius:999px; font-weight:600; }
+  .footNav button:hover{ background:var(--blue-100); }
+  .footNav button[disabled]{ opacity:.4; cursor:not-allowed; }
+
+  #landing{ max-width:640px; margin:60px auto; text-align:left; }
+  #landing ul{ color:var(--ink-soft); padding-left:20px; }
+  #landing li{ margin-bottom:6px; }
+  #startBtn{ background:var(--blue-600); color:var(--white); border:none; padding:12px 26px; border-radius:999px; font-weight:700; font-size:1rem; margin-top:16px; }
+  #startBtn:hover{ background:var(--blue-900); }
+  .noteRed{ color:var(--red-600); font-size:.85rem; }
+
+  #results{ max-width:900px; margin:0 auto; }
+  #results .scoreCard{ background:var(--blue-050); border:1px solid var(--blue-100); border-radius:var(--radius); padding:22px; text-align:center; margin-bottom:24px; }
+  #results .scoreCard .big{ font-size:2.4rem; font-weight:800; color:var(--blue-900); }
+  .reviewRow{ display:flex; gap:10px; padding:8px 4px; border-bottom:1px solid var(--line); font-size:.9rem; align-items:flex-start; flex-wrap:wrap; }
+  .reviewRow .num{ font-weight:700; width:28px; flex:none; }
+  .reviewRow .yourAns{ min-width:140px; }
+  .reviewRow .correct{ color:#1a7a3c; }
+  .reviewRow .wrong{ color:var(--red-600); text-decoration:line-through; }
+  .tag{ font-size:.72rem; font-weight:700; padding:1px 8px; border-radius:999px; flex:none; }
+  .tag.ok{ background:#e5f6ea; color:#1a7a3c; }
+  .tag.no{ background:var(--red-050); color:var(--red-600); }
+
+  @media (max-width:900px){
+    .twoCol{ grid-template-columns: 1fr; }
+    .passageCol, .questionsCol{ max-height:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand">
+    <h1 style="font-size:1.15rem;margin:0;">IELTS Reading Practice Test</h1>
+    <small>Academic — 3 passages</small>
+  </div>
+  <div id="timerWrap" class="hidden">
+    <span id="timerLabel">TIME REMAINING</span>
+    <span id="timerDisplay">60:00</span>
+  </div>
+</div>
+
+<nav id="sectionNav" class="hidden">
+  <button class="navBtn" data-target="passage1">Passage 1</button>
+  <button class="navBtn" data-target="passage2">Passage 2</button>
+  <button class="navBtn" data-target="passage3">Passage 3</button>
+  <button id="submitBtn">Submit test</button>
+</nav>
+
+<div id="content">
+
+  <!-- LANDING -->
+  <section id="landing">
+    <h2>Before you begin</h2>
+    <ul>
+      <li>The test has <strong>3 reading passages</strong> and <strong>40 questions</strong>.</li>
+      <li>You have <strong>60 minutes</strong> in total. The timer starts as soon as you click Start and cannot be paused. Your test is submitted automatically when time runs out.</li>
+      <li>You can submit at any time before that using the Submit button at the top of the page.</li>
+      <li>You can move between passages freely and return to earlier ones.</li>
+      <li>Select any text in a passage or question to highlight it, the same as on the real test paper.</li>
+      <li>After you submit, you'll see your score and the correct answers for every question.</li>
+    </ul>
+    <button id="startBtn">Start test</button>
+  </section>
+
+  <!-- PASSAGE 1 -->
+  <section id="passage1" class="test-section hidden">
+    <div class="section-head"><h2>Passage 1</h2><span class="qrange">Questions 1–14</span></div>
+    <div class="toolbar"><button class="tbtn" data-highlight-toggle>🖊 Highlight mode: off</button></div>
+
+    <div class="twoCol">
+      <div class="passageCol" data-highlight-zone>
+        <h2>The students' problem</h2>
+        <p><strong class="para">(A)</strong> The college and university accommodation crisis in Ireland has become 'so chronic' that students are being forced to sleep rough, share a bed with strangers – or give up on studying altogether.</p>
+        <p><strong class="para">(B)</strong> The deputy president of the Union of Students in Ireland, Kevin Donoghue, said the problem has become particularly acute in Dublin. He told the Irish Mirror: "Students are so desperate, they're not just paying through the nose to share rooms – they're paying to share a bed with complete strangers. It reached crisis point last year and it's only getting worse. We've heard of students sleeping rough; on sofas, floors and in their cars and I have to stress there's no student in the country that hasn't been touched by this crisis. Commutes – which would once have been considered ridiculous – are now normal, whether that's by bus, train or car and those who drive often end up sleeping in their car if they've an early start the next morning."</p>
+        <p><strong class="para">(C)</strong> Worry is increasing over the problems facing Ireland's 200,000 students as the number increases over the next 15 years. With 165,000 full-time students in Ireland – and that figure expected to increase to around 200,000 within the next 15 years – fears remain that there aren't enough properties to accommodate current numbers.</p>
+        <p><strong class="para">(D)</strong> Mr. Donoghue added: "The lack of places to live is actually forcing school-leavers out of college altogether. Either they don't go in the first place or end up having to drop out because they can't get a room and commuting is just too expensive, stressful and difficult."</p>
+        <p><strong class="para">(E)</strong> Claims have emerged from the country that some students have been forced to sleep in cars, or out on the streets, because of the enormous increases to rent in the capital. Those who have been lucky enough to find a place to live have had to do so 'blind' by paying for accommodation, months in advance, they haven't even seen just so they will have a roof over their head over the coming year.</p>
+        <p><strong class="para">(F)</strong> According to the Irish Independent, it's the 'Google effect' which is to blame. As Google and other blue-chip companies open offices in and around Dublin's docklands area, which are 'on the doorstep of the city', international professionals have been flocking to the area which will boast 2,600 more apartments, on 50 acres of undeveloped land, over the next three to 10 years.</p>
+        <p><strong class="para">(G)</strong> Rent in the area soared by 15 per cent last year and a two-bedroom apartment overlooking the Grand Canal costs €2,100 (£1,500) per month to rent. Another two-bedroom apartment at Hanover Dock costs €2,350 (almost £1,700) with a three-bedroom penthouse – measuring some 136 square metres – sits at €4,500 (£3,200) per month in rent.</p>
+        <p><strong class="para">(H)</strong> Ireland's Higher Education Authority admitted this was the first time they had seen circumstances 'so extreme' and the Fianna Fáil party leader, Michael Martin, urged on the Government to intervene. He said: "It is very worrying that all of the progress in opening up access to higher education in the last decade – particularly for the working poor – is being derailed because of an entirely foreseeable accommodation crisis."</p>
+      </div>
+
+      <div class="questionsCol" data-highlight-zone>
+        <div class="qblock">
+          <h3>Questions 1–8</h3>
+          <p class="qsub">Reading Passage 1 has eight paragraphs, A–H. Choose the most suitable heading for each and select the matching paragraph letter.</p>
+          <div class="fillLine"><span class="qnum">1</span><label>Cons of the commuting</label><select class="matchSel" data-q="1"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">2</span><label>Thing that students have to go through</label><select class="matchSel" data-q="2"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">3</span><label>Commutes have become common in Ireland nowadays</label><select class="matchSel" data-q="3"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">4</span><label>Danger of the overflow</label><select class="matchSel" data-q="4"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">5</span><label>Cause of the problems</label><select class="matchSel" data-q="5"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">6</span><label>Pricing data</label><select class="matchSel" data-q="6"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">7</span><label>Regression</label><select class="matchSel" data-q="7"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">8</span><label>Eyeless choice</label><select class="matchSel" data-q="8"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+        </div>
+
+        <div class="qblock">
+          <h3>Questions 9–14</h3>
+          <p class="qsub">Do the following statements agree with the information in the passage? Choose True, False, or Not Given.</p>
+          <div class="fillLine"><span class="qnum">9</span><label>The accommodation problem in Ireland is especially bad in Dublin.</label><select class="matchSel" data-q="9"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+          <div class="fillLine"><span class="qnum">10</span><label>Commutes are considered ridiculous.</label><select class="matchSel" data-q="10"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+          <div class="fillLine"><span class="qnum">11</span><label>The number of students in Ireland is not likely to increase in the future.</label><select class="matchSel" data-q="11"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+          <div class="fillLine"><span class="qnum">12</span><label>Due to the opening of the new offices around Dublin, the number of local restaurants will go up significantly over the next 3 to 10 years.</label><select class="matchSel" data-q="12"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+          <div class="fillLine"><span class="qnum">13</span><label>The rent price went up by 15% last year.</label><select class="matchSel" data-q="13"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+          <div class="fillLine"><span class="qnum">14</span><label>Michael Martin stated that the crisis could have been avoided if the government reacted properly.</label><select class="matchSel" data-q="14"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footNav"><button disabled>← Previous</button><button data-nextsection="passage2">Next: Passage 2 →</button></div>
+  </section>
+
+  <!-- PASSAGE 2 -->
+  <section id="passage2" class="test-section hidden">
+    <div class="section-head"><h2>Passage 2</h2><span class="qrange">Questions 15–26</span></div>
+    <div class="toolbar"><button class="tbtn" data-highlight-toggle>🖊 Highlight mode: off</button></div>
+
+    <div class="twoCol">
+      <div class="passageCol" data-highlight-zone>
+        <h2>Life lessons from villains, crooks and gangsters</h2>
+        <p><strong class="para">(A)</strong> A notorious Mexican drug baron's audacious escape from prison in July doesn't, at first, appear to have much to teach corporate boards. But some in the business world suggest otherwise. Beyond the morally reprehensible side of criminals' work, some business gurus say organised crime syndicates, computer hackers, pirates and others operating outside the law could teach legitimate corporations a thing or two about how to hustle and respond to rapid change.</p>
+        <p><strong class="para">(B)</strong> Far from encouraging illegality, these gurus argue that – in the same way big corporations sometimes emulate start-ups – business leaders could learn from the underworld about flexibility, innovation and the ability to pivot quickly. "There is a nimbleness to criminal organisations that legacy corporations [with large, complex layers of management] don't have," said Marc Goodman, head of the Future Crimes Institute and global cyber-crime advisor. While traditional businesses focus on rules they have to follow, criminals look to circumvent them. "For criminals, the sky is the limit and that creates the opportunity to think much, much bigger."</p>
+        <p><strong class="para">(C)</strong> Joaquin Guzman, the head of the Mexican Sinaloa drug cartel, for instance, slipped out of his prison cell through a tiny hole in his shower that led to a mile-long tunnel fitted with lights and ventilation. Making a break for it required creative thinking, long-term planning and perseverance – essential skills similar to those needed to achieve success in big business.</p>
+        <p><strong class="para">(D)</strong> While Devin Liddell, who heads brand strategy for Seattle-based design consultancy, Teague, condemns the violence and other illegal activities he became curious as to how criminal groups endure. Some cartels stay in business despite multiple efforts by law enforcement on both sides of the US border and millions of dollars from international agencies to shut them down. Liddell genuinely believes there's a lesson in longevity here. One strategy he underlined was how the bad guys respond to change. In order to bypass the border between Mexico and the US, for example, the Sinaloa cartel went to great lengths. It built a vast underground tunnel, hired family members as border agents and even used a catapult to circumvent a high-tech fence.</p>
+        <p><strong class="para">(E)</strong> By contrast, many legitimate businesses fail because they hesitate to adapt quickly to changing market winds. One high-profile example is movie and game rental company Blockbuster, which didn't keep up with the market and lost business to mail order video rentals and streaming technologies. The brand has all but faded from view. Liddell argues the difference between the two groups is that criminal organisations often have improvisation encoded into their daily behaviour, while larger companies think of innovation as a set process. "This is a leadership challenge," said Liddell. "How well companies innovate and organise is a reflection of leadership."</p>
+        <p><strong class="para">(F)</strong> Cash-strapped start-ups also use unorthodox strategies to problem solve and build their businesses up from scratch. This creativity and innovation is often borne out of necessity, such as tight budgets. Both criminals and start-up founders "question authority, act outside the system and see new and clever ways of doing things," said Goodman. "Either they become Elon Musk or El Chapo." And, some entrepreneurs aren't even afraid to operate in legal grey areas in their effort to disrupt the marketplace. The co-founders of music streaming service Napster, for example, knowingly broke music copyright rules with their first online file sharing service, but their technology paved the way for legal innovation as regulators caught up.</p>
+        <p><strong class="para">(G)</strong> Goodman and others believe thinking hard about problem solving before worrying about restrictions could prevent established companies falling victim to rivals less constrained by tradition. In their book The Misfit Economy, Alexa Clay and Kyra Maya Phillips examine how individuals can apply that mindset to become more innovative and entrepreneurial within corporate structures. They studied not just violent criminals like Somali pirates, but others who break the rules in order to find creative solutions to their business problems, such as people living in the slums of Mumbai or computer hackers. They picked out five common traits among this group: the ability to hustle, pivot, provoke, hack and copycat.</p>
+        <p><strong class="para">(H)</strong> Clay gives a Saudi entrepreneur named Walid Abdul-Wahab as a prime example. Abdul-Wahab worked with Amish farmers to bring camel milk to American consumers even before US regulators approved it. Through perseverance, he eventually found a network of Amish camel milk farmers and started selling the product via social media. Now his company, Desert Farms, sells to giant mainstream retailers like Whole Foods Market. Those on the fringe don't always have the option of traditional, corporate jobs and that forces them to think more creatively about how to make a living, Clay said. They must develop grit and resilience in order to last outside the cushy confines of cubicle life. "In many cases scarcity is the mother of invention," Clay said.</p>
+      </div>
+
+      <div class="questionsCol" data-highlight-zone>
+        <div class="qblock">
+          <h3>Questions 15–21</h3>
+          <p class="qsub">Match the headings below with the paragraphs, A–H.</p>
+          <div class="fillLine"><span class="qnum">15</span><label>Five common traits among rule-breakers</label><select class="matchSel" data-q="15"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">16</span><label>Comparison between criminals and traditional businessmen</label><select class="matchSel" data-q="16"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">17</span><label>Can a drug baron's escape teach legitimate corporations?</label><select class="matchSel" data-q="17"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">18</span><label>Great entrepreneur</label><select class="matchSel" data-q="18"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">19</span><label>How criminal groups deceive the law</label><select class="matchSel" data-q="19"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">20</span><label>The difference between legal and illegal organisations</label><select class="matchSel" data-q="20"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="fillLine"><span class="qnum">21</span><label>Similarity between criminals and start-up founders</label><select class="matchSel" data-q="21"><option value="">–</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+        </div>
+
+        <div class="qblock">
+          <h3>Questions 22–25</h3>
+          <p class="qsub">Complete the sentences. Write ONLY ONE WORD from the passage for each answer.</p>
+          <div class="fillLine"><span class="qnum">22</span><label>To escape from prison, Joaquin Guzman had to use such traits as creative thinking, long-term planning and</label><input type="text" data-q="22">.</div>
+          <div class="fillLine"><span class="qnum">23</span><label>The Sinaloa cartel built a grand underground tunnel and even used a</label><input type="text" data-q="23"><label>to avoid the fence.</label></div>
+          <div class="fillLine"><span class="qnum">24</span><label>The main difference is that criminals, unlike large corporations, often have</label><input type="text" data-q="24"><label>encoded into their daily life.</label></div>
+          <div class="fillLine"><span class="qnum">25</span><label>Due to being persuasive, Walid Abdul-Wahab found a</label><input type="text" data-q="25"><label>of Amish camel milk farmers.</label></div>
+        </div>
+
+        <div class="qblock">
+          <h3>Question 26</h3>
+          <p class="qsub">Choose the correct letter, A, B, C or D. The main goal of this article is to:</p>
+          <div class="optionRow">
+            <label><input type="radio" name="q26" data-q="26" value="A"> A &nbsp;Show different ways of illegal activity</label>
+            <label><input type="radio" name="q26" data-q="26" value="B"> B &nbsp;Give an overview of various criminals and their gangs</label>
+            <label><input type="radio" name="q26" data-q="26" value="C"> C &nbsp;Draw a comparison between legal and illegal business, providing examples</label>
+            <label><input type="radio" name="q26" data-q="26" value="D"> D &nbsp;Justify criminals with creative thinking</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footNav"><button data-prevsection="passage1">← Previous</button><button data-nextsection="passage3">Next: Passage 3 →</button></div>
+  </section>
+
+  <!-- PASSAGE 3 -->
+  <section id="passage3" class="test-section hidden">
+    <div class="section-head"><h2>Passage 3</h2><span class="qrange">Questions 27–40</span></div>
+    <div class="toolbar"><button class="tbtn" data-highlight-toggle>🖊 Highlight mode: off</button></div>
+
+    <div class="twoCol">
+      <div class="passageCol" data-highlight-zone>
+        <h2>Britain needs strong TV industry</h2>
+        <p>Comedy writer Armando Iannucci has called for an industry-wide defence of the BBC and British programme-makers. "The Thick of It" creator made his remarks in the annual MacTaggart Lecture at the Edinburgh TV Festival.</p>
+        <p>"It's more important than ever that we have more strong, popular channels... that act as beacons, drawing audiences to the best content," he said. Speaking earlier, Culture Secretary John Whittingdale rejected suggestions that he wanted to dismantle the BBC.</p>
+        <p><strong>'Champion supporters'</strong></p>
+        <p>Iannucci co-wrote "I'm Alan Partridge", wrote the movie "In the Loop" and created and wrote the hit "HBO" and "Sky Atlantic show Veep". He delivered the 40th annual MacTaggart Lecture, which has previously been given by Oscar winner Kevin Spacey, former BBC director general Greg Dyke, Jeremy Paxman and Rupert Murdoch. Iannucci said: "Faced with a global audience, British television needs its champion supporters."</p>
+        <p>He continued his praise for British programming by saying the global success of American TV shows had come about because they were emulating British television. "The best US shows are modelling themselves on what used to make British TV so world-beating," he said. "US prime-time schedules are now littered with those quirky formats from the UK - the 'Who Do You Think You Are''s and the variants on 'Strictly Come Dancing' - as well as the single-camera non-audience sitcom, which we brought into the mainstream first. We have changed international viewing for the better."</p>
+        <p>With the renewal of the BBC's royal charter approaching, Iannucci also praised the corporation. He said: "If public service broadcasting - one of the best things we've ever done creatively as a country - if it was a car industry, our ministers would be out championing it overseas, trying to win contracts, boasting of the British jobs that would bring." In July, the government issued a green paper setting out issues that will be explored during negotiations over the future of the BBC, including the broadcaster's size, its funding and governance.</p>
+        <p>Primarily Mr Whittingdale wanted to appoint a panel of five people, but finally he invited two more people to advise on the charter renewal, namely former Channel 4 boss Dawn Airey and journalism professor Stewart Purvis, a former editor-in-chief of ITN. Iannucci bemoaned the lack of "creatives" involved in the discussions.</p>
+        <p>"When the media, communications and information industries make up nearly 8% our GDP, larger than the car and oil and gas industries put together, we need to be heard, as those industries are heard. But when I see the panel of experts who've been asked by the culture secretary to take a root and branch look at the BBC, I don't see anyone who is a part of that cast and crew list. I see executives, media owners, industry gurus, all talented people - but not a single person who's made a classic and enduring television show."</p>
+        <p><strong>'Don't be modest'</strong></p>
+        <p>Iannucci suggested one way of easing the strain on the licence fee was "by pushing ourselves more commercially abroad".</p>
+        <p>"Use the BBC's name, one of the most recognised brands in the world," he said. "And use the reputation of British television across all networks, to capitalise financially overseas. Be more aggressive in selling our shows, through advertising, through proper international subscription channels, freeing up BBC Worldwide to be fully commercial, whatever it takes.</p>
+        <p>"Frankly, don't be icky and modest about making money, let's monetise the bezeesus Mary and Joseph out of our programmes abroad so that money can come back, take some pressure off the licence fee at home and be invested in even more ambitious quality shows, that can only add to our value."</p>
+        <p>Mr Whittingdale, who was interviewed by ITV News' Alastair Stewart at the festival, said he wanted an open debate about whether the corporation should do everything it has done in the past. He said he had a slight sense that people who rushed to defend the BBC were "trying to have an argument that's never been started".</p>
+        <p>"Whatever my view is, I don't determine what programmes the BBC should show," he added. "That's the job of the BBC." Mr Whittingdale said any speculation that the Conservative Party had always wanted to change the BBC due to issues such as its editorial line was "absolute nonsense".</p>
+      </div>
+
+      <div class="questionsCol" data-highlight-zone>
+        <div class="qblock">
+          <h3>Questions 27–31</h3>
+          <p class="qsub">Do the following statements agree with the information in the passage? Choose True, False, or Not Given.</p>
+          <div class="fillLine"><span class="qnum">27</span><label>Armando Iannucci expressed a need of having more popular channels.</label><select class="matchSel" data-q="27"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+          <div class="fillLine"><span class="qnum">28</span><label>John Whittingdale wanted to dismantle the BBC.</label><select class="matchSel" data-q="28"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+          <div class="fillLine"><span class="qnum">29</span><label>Iannucci delivered the 30th annual MacTaggart Lecture.</label><select class="matchSel" data-q="29"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+          <div class="fillLine"><span class="qnum">30</span><label>Iannucci believes that British television has contributed to the success of American TV shows.</label><select class="matchSel" data-q="30"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+          <div class="fillLine"><span class="qnum">31</span><label>There have been negotiations over the future of the BBC in July.</label><select class="matchSel" data-q="31"><option value="">–</option><option>True</option><option>False</option><option>Not Given</option></select></div>
+        </div>
+
+        <div class="qblock">
+          <h3>Questions 32–35</h3>
+          <p class="qsub">Choose the correct letter, A, B, C or D.</p>
+          <p style="font-size:.9rem;"><strong>32</strong> Iannucci praised everything EXCEPT</p>
+          <div class="optionRow">
+            <label><input type="radio" name="q32" data-q="32" value="A"> A &nbsp;US shows</label>
+            <label><input type="radio" name="q32" data-q="32" value="B"> B &nbsp;British shows</label>
+            <label><input type="radio" name="q32" data-q="32" value="C"> C &nbsp;Corporation</label>
+            <label><input type="radio" name="q32" data-q="32" value="D"> D &nbsp;British programming</label>
+          </div>
+          <p style="font-size:.9rem;margin-top:12px;"><strong>33</strong> To advise on the charter renewal Mr Whittingdale appointed a panel of</p>
+          <div class="optionRow">
+            <label><input type="radio" name="q33" data-q="33" value="A"> A &nbsp;five people</label>
+            <label><input type="radio" name="q33" data-q="33" value="B"> B &nbsp;two people</label>
+            <label><input type="radio" name="q33" data-q="33" value="C"> C &nbsp;seven people</label>
+            <label><input type="radio" name="q33" data-q="33" value="D"> D &nbsp;four people</label>
+          </div>
+          <p style="font-size:.9rem;margin-top:12px;"><strong>34</strong> Who of these people was NOT invited to the discussion concerning BBC renewal?</p>
+          <div class="optionRow">
+            <label><input type="radio" name="q34" data-q="34" value="A"> A &nbsp;Armando Iannucci</label>
+            <label><input type="radio" name="q34" data-q="34" value="B"> B &nbsp;Dawn Airey</label>
+            <label><input type="radio" name="q34" data-q="34" value="C"> C &nbsp;John Whittingdale</label>
+            <label><input type="radio" name="q34" data-q="34" value="D"> D &nbsp;Stewart Purvis</label>
+          </div>
+          <p style="font-size:.9rem;margin-top:12px;"><strong>35</strong> The panel of experts lacks:</p>
+          <div class="optionRow">
+            <label><input type="radio" name="q35" data-q="35" value="A"> A &nbsp;media owners</label>
+            <label><input type="radio" name="q35" data-q="35" value="B"> B &nbsp;people who make enduring TV shows</label>
+            <label><input type="radio" name="q35" data-q="35" value="C"> C &nbsp;gurus of the television industry</label>
+            <label><input type="radio" name="q35" data-q="35" value="D"> D &nbsp;top executives</label>
+          </div>
+        </div>
+
+        <div class="qblock">
+          <h3>Questions 36–40</h3>
+          <p class="qsub">Complete the summary below. Write NO MORE THAN TWO WORDS from the passage for each answer.</p>
+          <p style="font-size:.88rem;color:var(--ink-soft);">Easing the strain on the licence fees</p>
+          <div class="fillLine"><label>Iannucci recommended increasing the BBC's profit by pushing ourselves more</label><span class="qnum">36</span><input type="text" data-q="36">.</div>
+          <div class="fillLine"><label>He suggests being more aggressive in selling British shows, through advertising and proper international</label><span class="qnum">37</span><input type="text" data-q="37">.</div>
+          <div class="fillLine"><label>Also, he invokes producers to stop being</label><span class="qnum">38</span><input type="text" data-q="38"><label>and modest about making money and invest in even</label></div>
+          <div class="fillLine"><span class="qnum">39</span><input type="text" data-q="39"><label>quality shows.</label></div>
+          <div class="fillLine"><label>However, Mr Whittingdale denied any</label><span class="qnum">40</span><input type="text" data-q="40"><label>that the Conservative Party had always wanted to change the BBC because of its editorial line.</label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footNav"><button data-prevsection="passage2">← Previous</button><button id="finalSubmitBtn">Submit test →</button></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="hidden">
+    <div class="scoreCard">
+      <div>Your score</div>
+      <div class="big" id="scoreBig">0 / 40</div>
+      <div id="scoreNote" style="color:var(--ink-soft);font-size:.9rem;"></div>
+    </div>
+    <div id="reviewList"></div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var KEY = {
+    1:["D"],2:["A"],3:["B"],4:["C"],5:["F"],6:["G"],7:["H"],8:["E"],
+    9:["true"],10:["false"],11:["false"],12:["not given"],13:["true"],14:["not given"],
+    15:["G"],16:["B"],17:["A"],18:["H"],19:["D"],20:["E"],21:["F"],
+    22:["perseverance"],23:["catapult"],24:["improvisation"],25:["network"],
+    26:["C"],
+    27:["true"],28:["false"],29:["not given"],30:["true"],31:["false"],
+    32:["A"],33:["C"],34:["A"],35:["B"],
+    36:["commercially abroad"],37:["subscription channels"],38:["icky"],39:["more ambitious"],40:["speculation"]
+  };
+
+  var TOTAL_QUESTIONS = 40;
+  var TEST_SECONDS = 60 * 60;
+  var SECTIONS = ["passage1","passage2","passage3"];
+
+  var timeLeft = TEST_SECONDS;
+  var timerInterval = null;
+  var submitted = false;
+
+  function $(sel, root){ return (root||document).querySelector(sel); }
+  function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+  function norm(s){ return (s||"").trim().toLowerCase().replace(/\s+/g," "); }
+
+  $("#startBtn").addEventListener("click", function(){
+    $("#landing").classList.add("hidden");
+    $("#sectionNav").classList.remove("hidden");
+    $("#timerWrap").classList.remove("hidden");
+    showSection("passage1");
+    startTimer();
+  });
+
+  function startTimer(){
+    updateTimerDisplay();
+    timerInterval = setInterval(function(){
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0){
+        clearInterval(timerInterval);
+        submitTest(true);
+      }
+    }, 1000);
+  }
+  function updateTimerDisplay(){
+    var m = Math.floor(timeLeft/60), s = timeLeft%60;
+    var disp = $("#timerDisplay");
+    disp.textContent = (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+    disp.classList.toggle("warning", timeLeft <= 300);
+  }
+
+  function showSection(id){
+    $all(".test-section").forEach(function(sec){ sec.classList.add("hidden"); });
+    $("#"+id).classList.remove("hidden");
+    $all(".navBtn").forEach(function(b){ b.classList.toggle("active", b.dataset.target === id); });
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+  $all(".navBtn[data-target]").forEach(function(btn){ btn.addEventListener("click", function(){ showSection(btn.dataset.target); }); });
+  $all("[data-nextsection]").forEach(function(btn){ btn.addEventListener("click", function(){ showSection(btn.dataset.nextsection); }); });
+  $all("[data-prevsection]").forEach(function(btn){ btn.addEventListener("click", function(){ showSection(btn.dataset.prevsection); }); });
+
+  $all("[data-highlight-toggle]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var zoneContainer = btn.closest(".test-section");
+      var isOn = btn.classList.toggle("on");
+      btn.textContent = isOn ? "🖊 Highlight mode: on" : "🖊 Highlight mode: off";
+      zoneContainer.dataset.highlighting = isOn ? "1" : "0";
+    });
+  });
+
+  document.addEventListener("mouseup", function(){
+    var sel = window.getSelection();
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0) return;
+    var range = sel.getRangeAt(0);
+    var container = range.commonAncestorContainer;
+    var zone = (container.nodeType === 1 ? container : container.parentElement);
+    var block = zone ? zone.closest("[data-highlight-zone]") : null;
+    if (!block) return;
+    var section = block.closest(".test-section");
+    if (!section || section.dataset.highlighting !== "1") return;
+    try{
+      var mark = document.createElement("mark");
+      mark.className = "hl";
+      range.surroundContents(mark);
+      sel.removeAllRanges();
+    }catch(e){ /* selection spans multiple elements — skip (prototype limitation) */ }
+  });
+
+  function getVal(id){
+    var el = $('[data-q="'+id+'"]:not([type=radio])');
+    if (el) return el.value;
+    var radio = $('input[type=radio][data-q="'+id+'"]:checked');
+    return radio ? radio.value : "";
+  }
+
+  function gradeAndRender(){
+    var correctCount = 0;
+    var rows = [];
+    for (var q = 1; q <= TOTAL_QUESTIONS; q++){
+      var userVal = getVal(q);
+      var accepted = KEY[q] || [];
+      var isCorrect = accepted.some(function(a){ return norm(a) === norm(userVal); });
+      if (isCorrect) correctCount++;
+      rows.push({num:q, your:userVal, correct:accepted.join(" / "), ok:isCorrect});
+    }
+
+    $("#scoreBig").textContent = correctCount + " / " + TOTAL_QUESTIONS;
+    $("#scoreNote").textContent = bandNote(correctCount);
+
+    var list = $("#reviewList");
+    list.innerHTML = "";
+    rows.forEach(function(r){
+      var div = document.createElement("div");
+      div.className = "reviewRow";
+      div.innerHTML =
+        '<span class="num">'+r.num+'</span>' +
+        '<span class="tag '+(r.ok?"ok":"no")+'">'+(r.ok?"Correct":"Incorrect")+'</span>' +
+        '<span class="yourAns '+(r.ok?"correct":"wrong")+'">Your answer: '+ (r.your || "(blank)") +'</span>' +
+        (r.ok ? '' : '<span class="yourAns correct">Correct answer: '+r.correct+'</span>');
+      list.appendChild(div);
+    });
+  }
+
+  function bandNote(score){
+    if (score >= 39) return "Excellent — Band 9 range.";
+    if (score >= 35) return "Very strong — Band 8 range.";
+    if (score >= 30) return "Good — Band 7 range.";
+    if (score >= 23) return "Solid — Band 6 range.";
+    if (score >= 16) return "Fair — Band 5 range.";
+    return "Keep practising — review the passages and try again.";
+  }
+
+  function lockAllInputs(){
+    $all("input, select").forEach(function(el){ el.disabled = true; });
+  }
+
+  function submitTest(auto){
+    if (submitted) return;
+    submitted = true;
+    clearInterval(timerInterval);
+    lockAllInputs();
+    $all(".test-section").forEach(function(s){ s.classList.add("hidden"); });
+    $("#sectionNav").classList.add("hidden");
+    $("#timerWrap").classList.add("hidden");
+    $("#results").classList.remove("hidden");
+    gradeAndRender();
+    if (auto){
+      var note = document.createElement("p");
+      note.className = "noteRed";
+      note.textContent = "Time's up — your test was submitted automatically.";
+      $("#results").insertBefore(note, $("#results").firstChild);
+    }
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  $("#submitBtn").addEventListener("click", function(){ confirmSubmit(); });
+  $("#finalSubmitBtn").addEventListener("click", function(){ confirmSubmit(); });
+  function confirmSubmit(){
+    if (window.confirm("Submit the test now? You won't be able to change your answers afterwards.")){
+      submitTest(false);
+    }
+  }
+
+})();
+</script>
+</body>
+</html>
